@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>283. 移动零（简单）</title>
+<style>
+:root {color-scheme: light dark; font-family: system-ui,sans-serif; line-height: 1.65}
+body {margin: 0 auto; max-width: 52rem; padding: 1.5rem clamp(1rem,4vw,2rem) 3rem; overflow-wrap: anywhere}
+a {text-underline-offset: .2em}
+img {display: block; max-width: 100%; height: auto}
+pre, blockquote {padding: .8rem 1rem; background: color-mix(in srgb, CanvasText 7%, Canvas); border-radius: .4rem}
+pre {overflow: auto; overflow-wrap: normal}
+code {font-family: ui-monospace, monospace}
+table {display: block; overflow-x: auto; border-collapse: collapse}
+td, th {border: 1px solid GrayText; padding: .35rem .6rem}
+hr {border: 0; border-top: 1px solid GrayText}
+</style></head><body><nav><a href="../index.html">← 题解目录</a></nav><main><h1>283. 移动零（简单）</h1>
+<blockquote>
+<p><strong>一句话核心</strong>：不要遇到 <code>0</code> 就把后面整个数组往前搬（<code>O(n²)</code>）；反过来用同向快慢指针<strong>把非零数按顺序填到左边 <code>slow</code> 位置上</strong>，<code>O(n)</code> 一次搞定。</p>
+</blockquote>
+<hr />
+<h2>一、思路图解</h2>
+<p><img alt="双指针两大模式" src="assets/%E5%8F%8C%E6%8C%87%E9%92%88%E4%B8%A4%E5%A4%A7%E6%A8%A1%E5%BC%8F.svg" /></p>
+<hr />
+<h2>二、下次遇到怎么想？（简单 3 步）</h2>
+<ol>
+<li><strong>看要求</strong>：要求<strong>原地修改</strong> + <strong>保持非零元素相对顺序</strong> → 立刻锁定<strong>同向快慢指针（划界法）</strong>（不能用两端直接对换，否则会打乱顺序）。</li>
+<li><strong>定死两个指针含义</strong>：</li>
+<li><code>slow</code>：守住“已整理好的非零区”右边界（下一个非零数该放的位置）；</li>
+<li><code>fast</code>：从左到右探路，只挑非零数。</li>
+<li><strong>写代码</strong>：遇到 <code>nums[fast] != 0</code>，就把它换到（或覆盖到）<code>nums[slow]</code>，然后 <code>slow += 1</code>。</li>
+</ol>
+<hr />
+<h2>三、我容易做错的地方（重点避坑）</h2>
+<ol>
+<li>❌ <strong>里层 <code>while</code> 忘写边界保护导致越界崩溃</strong></li>
+<li>✅ 铁律：<strong>先写刹车，再写条件（下标在左，取值在右）</strong> → <code>while i &lt;= j and nums[i] == 0:</code>。能用单层 <code>if</code> 解决就绝不写嵌套 <code>while</code>。</li>
+<li>❌ <strong>整体搬移思路导致 <code>pre</code> 和 <code>i</code> 更新绕昏</strong></li>
+<li>搬移后原 <code>i</code> 处的元素已经挪到了 <code>pre</code>，如果还写 <code>i += 1</code> 会跳过新搬过来的元素。</li>
+<li>✅ 不要跨轮次维护 <code>pre</code>；更推荐直接用下面的快慢指针模板，零额外状态变量。</li>
+<li>❌ <strong>末尾补零漏掉最后一个元素</strong></li>
+<li>Python <code>range(a, b)</code> 是左闭右开，末尾补零右边界必须是 <code>len(nums)</code>，不是 <code>len(nums) - 1</code>。</li>
+</ol>
+<hr />
+<h2>四、标准代码（Python）</h2>
+<h3>写法一：一趟交换版（最简洁）</h3>
+<pre><code class="language-python">class Solution:
+    def moveZeroes(self, nums: list[int]) -&gt; None:
+        slow = 0
+        for fast in range(len(nums)):
+            if nums[fast] != 0:
+                nums[slow], nums[fast] = nums[fast], nums[slow]
+                slow += 1
+</code></pre>
+<h3>写法二：labuladong 两步覆写版（复用 27 题模板）</h3>
+<pre><code class="language-python">class Solution:
+    def moveZeroes(self, nums: list[int]) -&gt; None:
+        slow = 0
+        for fast in range(len(nums)):
+            if nums[fast] != 0:
+                nums[slow] = nums[fast]
+                slow += 1
+        for p in range(slow, len(nums)):
+            nums[p] = 0
+</code></pre>
+<ul>
+<li><strong>时间复杂度</strong>：<code>O(n)</code></li>
+<li><strong>空间复杂度</strong>：<code>O(1)</code></li>
+</ul></main></body></html>

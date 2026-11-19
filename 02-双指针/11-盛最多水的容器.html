@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>11. 盛最多水的容器（中等）</title>
+<style>
+:root {color-scheme: light dark; font-family: system-ui,sans-serif; line-height: 1.65}
+body {margin: 0 auto; max-width: 52rem; padding: 1.5rem clamp(1rem,4vw,2rem) 3rem; overflow-wrap: anywhere}
+a {text-underline-offset: .2em}
+img {display: block; max-width: 100%; height: auto}
+pre, blockquote {padding: .8rem 1rem; background: color-mix(in srgb, CanvasText 7%, Canvas); border-radius: .4rem}
+pre {overflow: auto; overflow-wrap: normal}
+code {font-family: ui-monospace, monospace}
+table {display: block; overflow-x: auto; border-collapse: collapse}
+td, th {border: 1px solid GrayText; padding: .35rem .6rem}
+hr {border: 0; border-top: 1px solid GrayText}
+</style></head><body><nav><a href="../index.html">← 题解目录</a></nav><main><h1>11. 盛最多水的容器（中等）</h1>
+<blockquote>
+<p><strong>一句话核心</strong>：从<strong>最宽边界</strong>（<code>left = 0, right = n - 1</code>）出发，高度被短板卡死；每次<strong>淘汰较矮的那一侧</strong>，用 <code>ans = max(...)</code> 记录沿途最大值。</p>
+</blockquote>
+<hr />
+<h2>一、思路图解</h2>
+<p><img alt="双指针两大模式" src="assets/%E5%8F%8C%E6%8C%87%E9%92%88%E4%B8%A4%E5%A4%A7%E6%A8%A1%E5%BC%8F.svg" /></p>
+<hr />
+<h2>二、下次遇到怎么想？（简单 3 步）</h2>
+<ol>
+<li><strong>先写公式</strong>：<code>area = (right - left) * min(height[left], height[right])</code>。</li>
+<li><strong>找单调排除条件</strong>：</li>
+<li>虽然柱子高度是<strong>无序</strong>的，但<strong>下标宽度 <code>right - left</code> 是从最大开始单调递减的</strong>！</li>
+<li>对较矮的那根短板来说，它已经用上了“能配到的最大宽度”，且高度上限被自己卡死。再往里挪另一侧只会让宽度更小、高度更不大于它，所以<strong>短板剩下的所有配对全都不可能更优，放心淘汰</strong>！</li>
+<li><strong>写循环</strong>：<code>while left &lt; right</code> 计算面积更新 <code>ans</code>，哪边矮就挪哪边（相等时挪任意一边都行）。</li>
+</ol>
+<hr />
+<h2>三、我容易做错的地方（思维陷阱复盘）</h2>
+<ul>
+<li>❌ <strong>陷入“下一步面积一定要比当前更大才移动”的爬山法陷阱</strong></li>
+<li>总觉得往里走不知道里面是高是矮，万一面积变小了怎么办？</li>
+<li>✅ <strong>正确心态</strong>：相向双指针不是“只往更大的方向走”，而是<strong>“把绝对没救的短板淘汰掉，保证不漏全局最优解”</strong>。就算这一步面积变小了也没关系，历史最大值已经安全锁在 <code>ans</code> 里了！</li>
+</ul>
+<hr />
+<h2>四、标准代码（Python）</h2>
+<pre><code class="language-python">class Solution:
+    def maxArea(self, height: list[int]) -&gt; int:
+        left, right = 0, len(height) - 1
+        ans = 0
+        while left &lt; right:
+            area = (right - left) * min(height[left], height[right])
+            ans = max(ans, area)
+            if height[left] &lt; height[right]:
+                left += 1
+            else:
+                right -= 1
+        return ans
+</code></pre>
+<ul>
+<li><strong>时间复杂度</strong>：<code>O(n)</code></li>
+<li><strong>空间复杂度</strong>：<code>O(1)</code></li>
+</ul></main></body></html>

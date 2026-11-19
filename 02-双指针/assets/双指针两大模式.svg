@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440">
+  <rect width="960" height="440" fill="#ffffff"/>
+  <style>
+    .title { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 21px; font-weight: 600; fill: #111827; }
+    .h2 { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 16px; font-weight: 600; fill: #1e3a8a; }
+    .h2g { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 16px; font-weight: 600; fill: #065f46; }
+    .label { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 14px; fill: #1f2937; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13.5px; fill: #1e40af; }
+    .muted { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 13px; fill: #6b7280; }
+  </style>
+
+  <text x="480" y="38" text-anchor="middle" class="title">双指针两大核心模型：划界法 vs 排除法（均为 O(n) 不走回头路）</text>
+
+  <!-- Left Card: 同向快慢指针 -->
+  <rect x="36" y="68" width="428" height="332" rx="14" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.6"/>
+  <text x="250" y="102" text-anchor="middle" class="h2">1. 同向快慢指针（划界分区法）</text>
+  <text x="250" y="126" text-anchor="middle" class="muted">代表题：283. 移动零 / 26. 去重 / 27. 移除元素</text>
+
+  <!-- Array visualization -->
+  <rect x="66" y="150" width="60" height="40" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.4"/>
+  <text x="96" y="175" text-anchor="middle" class="mono">1</text>
+  <rect x="126" y="150" width="60" height="40" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.4"/>
+  <text x="156" y="175" text-anchor="middle" class="mono">3</text>
+  <rect x="186" y="150" width="60" height="40" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.4"/>
+  <text x="216" y="175" text-anchor="middle" class="mono">0</text>
+  <rect x="246" y="150" width="60" height="40" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.4"/>
+  <text x="276" y="175" text-anchor="middle" class="mono">0</text>
+  <rect x="306" y="150" width="60" height="40" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.4"/>
+  <text x="336" y="175" text-anchor="middle" class="mono">12</text>
+
+  <text x="216" y="210" text-anchor="middle" class="mono">↑ slow</text>
+  <text x="336" y="210" text-anchor="middle" class="mono">↑ fast</text>
+
+  <text x="64" y="250" class="label">• 核心职责：slow 守住“已整理合格区”边界，fast 探路</text>
+  <text x="64" y="280" class="label">• 为什么好：天然保持非零元素的原有相对顺序</text>
+  <text x="64" y="310" class="label">• 防呆铁律：只挑合格数往 slow 填，绝不整体搬移</text>
+  <text x="64" y="346" class="mono">if nums[fast] != 0:</text>
+  <text x="84" y="370" class="mono">swap(slow, fast); slow += 1</text>
+
+  <!-- Right Card: 相向左右指针 -->
+  <rect x="496" y="68" width="428" height="332" rx="14" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.6"/>
+  <text x="710" y="102" text-anchor="middle" class="h2g">2. 相向左右指针（单调排除法）</text>
+  <text x="710" y="126" text-anchor="middle" class="muted">代表题：11. 盛水 / 15. 三数之和 / 42. 接雨水</text>
+
+  <!-- Array visualization -->
+  <rect x="526" y="150" width="60" height="40" fill="#a7f3d0" stroke="#10b981" stroke-width="1.4"/>
+  <text x="556" y="175" text-anchor="middle" class="mono">2</text>
+  <rect x="586" y="150" width="60" height="40" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.4"/>
+  <text x="616" y="175" text-anchor="middle" class="mono">8</text>
+  <rect x="646" y="150" width="60" height="40" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.4"/>
+  <text x="676" y="175" text-anchor="middle" class="mono">6</text>
+  <rect x="706" y="150" width="60" height="40" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.4"/>
+  <text x="736" y="175" text-anchor="middle" class="mono">3</text>
+  <rect x="766" y="150" width="60" height="40" fill="#a7f3d0" stroke="#10b981" stroke-width="1.4"/>
+  <text x="796" y="175" text-anchor="middle" class="mono">7</text>
+
+  <text x="556" y="210" text-anchor="middle" class="mono">left →</text>
+  <text x="796" y="210" text-anchor="middle" class="mono">← right</text>
+
+  <text x="524" y="250" class="label">• 触发前提：“左小右大(有序)”或“最宽边界”</text>
+  <text x="524" y="280" class="label">• 核心逻辑：每次淘汰必败的一端，绝不漏最优解</text>
+  <text x="524" y="310" class="label">• 避坑心态：不要求下一步更大，用 ans=max 兜底</text>
+  <text x="524" y="346" class="mono">if h[left] &lt; h[right]: left += 1</text>
+  <text x="524" y="370" class="mono">else: right -= 1</text>
+</svg>

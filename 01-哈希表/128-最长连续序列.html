@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>128. 最长连续序列（中等）</title>
+<style>
+:root {color-scheme: light dark; font-family: system-ui,sans-serif; line-height: 1.65}
+body {margin: 0 auto; max-width: 52rem; padding: 1.5rem clamp(1rem,4vw,2rem) 3rem; overflow-wrap: anywhere}
+a {text-underline-offset: .2em}
+img {display: block; max-width: 100%; height: auto}
+pre, blockquote {padding: .8rem 1rem; background: color-mix(in srgb, CanvasText 7%, Canvas); border-radius: .4rem}
+pre {overflow: auto; overflow-wrap: normal}
+code {font-family: ui-monospace, monospace}
+table {display: block; overflow-x: auto; border-collapse: collapse}
+td, th {border: 1px solid GrayText; padding: .35rem .6rem}
+hr {border: 0; border-top: 1px solid GrayText}
+</style></head><body><nav><a href="../index.html">← 题解目录</a></nav><main><h1>128. 最长连续序列（中等）</h1>
+<blockquote>
+<p><strong>一句话核心</strong>：题目卡死 <code>O(n)</code> 不能排序；把数字丢进 <code>set</code>，<strong>只从“没有前驱 <code>x - 1</code> 的起点”开始往后数</strong>，每个数最多被数 1 次。</p>
+</blockquote>
+<hr />
+<h2>一、思考逻辑图</h2>
+<p><img alt="128. 最长连续序列思考逻辑图" src="assets/128-%E6%80%9D%E8%80%83%E9%80%BB%E8%BE%91%E5%9B%BE.svg" /></p>
+<hr />
+<h2>二、下次遇到怎么想？（简单 3 步）</h2>
+<ol>
+<li><strong>看复杂度要求</strong>：要 <code>O(n)</code>，直接排除 <code>O(n log n)</code> 的排序，转向哈希表 <code>O(1)</code> 查邻居。</li>
+<li><strong>从暴力找重复</strong>：纯暴力枚举每个数往后数慢在两处——<code>list</code> 查找 <code>O(n)</code>，且同一段连续数字会被从中间反复数。</li>
+<li><strong>两步剪枝降到 <code>O(n)</code></strong>：</li>
+<li>换 <code>st = set(nums)</code>，查询变 <code>O(1)</code>；</li>
+<li>加一句 <strong><code>if x - 1 not in st:</code></strong>（只让车头去数整列火车），所有 <code>while</code> 加起来最多跑 <code>n</code> 次，总时间 <code>n + n + n = O(n)</code>。</li>
+</ol>
+<hr />
+<h2>三、我容易做错的地方（重点避坑）</h2>
+<p>如果用自己推导的<strong>“端点合并法”</strong>，这 3 个坑最容易中招：</p>
+<ol>
+<li>❌ <strong>只更新紧邻的 <code>x - 1</code> 和 <code>x + 1</code>，忘了更新最远端点</strong></li>
+<li>比如 <code>[3, 4]</code> 插入 <code>2</code>，只改 <code>table[3]</code> 会让最右端 <code>table[4]</code> 停留在旧值，后面来 <code>5</code> 就会算错。</li>
+<li>✅ 必须更新区间外边界：<strong><code>table[x - left]</code> 和 <code>table[x + right]</code></strong>。</li>
+<li>❌ <strong><code>left == 0</code> 时写 <code>table[x - 1] = cur</code> 导致“无中生有”</strong></li>
+<li>左边没有数时，把根本不在数组里的 <code>x - 1</code> 写进表里，会污染后续判断。</li>
+<li>✅ 写成 <code>table[x - left]</code> 后，当 <code>left == 0</code> 时退化为 <code>table[x]</code>，不会造假数字。</li>
+<li>❌ <strong>两个 <code>if</code> 分开写，边读边改导致两侧长度不同步</strong></li>
+<li>✅ 严格遵守三段式：<strong>先全读 <code>left, right</code> → 再算 <code>cur = left + 1 + right</code> → 最后统一写三个端点</strong>。</li>
+</ol>
+<blockquote>
+<p><strong>实战建议</strong>：面试/冲刺时直接写 <strong>Set 起点剪枝法</strong>，代码只有 8 行，几乎不可能写错边界。</p>
+</blockquote>
+<hr />
+<h2>四、标准代码（Python）</h2>
+<h3>解法一：Set 起点剪枝法（推荐）</h3>
+<pre><code class="language-python">class Solution:
+    def longestConsecutive(self, nums: list[int]) -&gt; int:
+        st = set(nums)
+        ans = 0
+        for x in st:
+            if x - 1 not in st:  # 只从连续段起点出发
+                y = x + 1
+                while y in st:
+                    y += 1
+                ans = max(ans, y - x)
+        return ans
+</code></pre>
+<h3>解法二：端点合并法（一次遍历）</h3>
+<pre><code class="language-python">class Solution:
+    def longestConsecutive(self, nums: list[int]) -&gt; int:
+        table = {}
+        maxlen = 0
+        for x in nums:
+            if x not in table:
+                left = table.get(x - 1, 0)
+                right = table.get(x + 1, 0)
+                cur = left + 1 + right
+                table[x] = table[x - left] = table[x + right] = cur
+                maxlen = max(maxlen, cur)
+        return maxlen
+</code></pre>
+<ul>
+<li><strong>时间复杂度</strong>：<code>O(n)</code></li>
+<li><strong>空间复杂度</strong>：<code>O(n)</code></li>
+</ul>
+<hr />
+<h2>五、两种解法对比：空间与流式场景</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">对比维度</th>
+<th style="text-align: left;">端点合并法（<code>dict</code>）</th>
+<th style="text-align: left;">Set 起点剪枝法（<code>set</code>）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>底层与时间/空间</strong></td>
+<td style="text-align: left;">哈希表 <code>O(1)</code> 查询，时间 <code>O(n)</code> / 空间 <code>O(n)</code>（<code>dict</code> 存键值略占内存）</td>
+<td style="text-align: left;">哈希表 <code>O(1)</code> 查询，时间 <code>O(n)</code> / 空间 <code>O(n)</code>（只存键更省内存）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>遍历次数</strong></td>
+<td style="text-align: left;"><strong>一趟遍历（支持数据流实时更新）</strong></td>
+<td style="text-align: left;">两趟（需先建完整 <code>set</code>）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>写错风险</strong></td>
+<td style="text-align: left;">易错在端点 <code>x - left</code> / <code>x + right</code></td>
+<td style="text-align: left;"><strong>极简 8 行，几乎零 Bug</strong></td>
+</tr>
+</tbody>
+</table></main></body></html>

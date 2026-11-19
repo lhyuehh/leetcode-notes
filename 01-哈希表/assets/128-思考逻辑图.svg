@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="960" height="520">
+  <rect width="960" height="520" fill="#ffffff"/>
+  <style>
+    .title { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 20px; font-weight: 600; fill: #111827; }
+    .h2 { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 16px; font-weight: 600; fill: #111827; }
+    .label { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 14px; fill: #1f2937; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13.5px; fill: #1e40af; }
+    .bad { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 14px; font-weight: 600; fill: #b91c1c; }
+    .good { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 15px; font-weight: 600; fill: #065f46; }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 1 1.5 L 8.5 5 L 1 8.5" fill="none" stroke="#4b5563" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- Top -->
+  <rect x="310" y="20" width="340" height="54" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.8"/>
+  <text x="480" y="52" text-anchor="middle" class="title">128. 最长连续序列（要求 O(n)）</text>
+
+  <line x1="480" y1="74" x2="480" y2="104" stroke="#4b5563" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- Step 1 -->
+  <rect x="370" y="110" width="220" height="40" rx="8" fill="#374151"/>
+  <text x="480" y="135" text-anchor="middle" font-family="-apple-system, PingFang SC, sans-serif" font-size="14" fill="#ffffff">1. 能不能先排序？</text>
+
+  <line x1="370" y1="130" x2="290" y2="130" stroke="#4b5563" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <rect x="64" y="110" width="218" height="40" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="173" y="135" text-anchor="middle" class="bad">排序 O(n log n) 超标，放弃</text>
+
+  <line x1="480" y1="150" x2="480" y2="180" stroke="#4b5563" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- Step 2 -->
+  <rect x="285" y="186" width="390" height="42" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.6"/>
+  <text x="480" y="212" text-anchor="middle" class="h2">2. 用哈希表 O(1) 查邻居，消除重复扫描</text>
+
+  <!-- Split -->
+  <line x1="480" y1="228" x2="480" y2="248" stroke="#4b5563" stroke-width="1.8"/>
+  <line x1="255" y1="248" x2="705" y2="248" stroke="#4b5563" stroke-width="1.8"/>
+  <line x1="255" y1="248" x2="255" y2="270" stroke="#4b5563" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <line x1="705" y1="248" x2="705" y2="270" stroke="#4b5563" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- Route A -->
+  <rect x="50" y="276" width="410" height="172" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="255" y="306" text-anchor="middle" class="h2">路线 A：端点合并法（字典存两端长度）</text>
+  <text x="74" y="338" class="label">1. 跳过重复数：</text>
+  <text x="195" y="338" class="mono">if x in table: continue</text>
+  <text x="74" y="370" class="label">2. 先只读左右：</text>
+  <text x="195" y="370" class="mono">L = table.get(x-1, 0), R = get(x+1, 0)</text>
+  <text x="74" y="402" class="label">3. 统一改三点：</text>
+  <text x="195" y="402" class="mono">table[x] = table[x-L] = table[x+R] = L+1+R</text>
+  <text x="74" y="432" class="label" fill="#b91c1c">注意：千万别写 x-1 / x+1，必须写 x-L 和 x+R</text>
+
+  <!-- Route B -->
+  <rect x="500" y="276" width="410" height="172" rx="12" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5"/>
+  <text x="705" y="306" text-anchor="middle" class="good">路线 B：Set 起点剪枝法（最简洁推荐）</text>
+  <text x="524" y="338" class="label">1. 全部入集合：</text>
+  <text x="642" y="338" class="mono">st = set(nums)</text>
+  <text x="524" y="370" class="label">2. 剪掉非车头：</text>
+  <text x="642" y="370" class="mono">if x - 1 in st: continue</text>
+  <text x="524" y="402" class="label">3. 只从起点数：</text>
+  <text x="642" y="402" class="mono">while y in st: y += 1</text>
+  <text x="524" y="432" class="label" fill="#065f46">每个数最多被 while 摸 1 次 → 严格 O(n)</text>
+
+  <!-- Bottom -->
+  <line x1="255" y1="448" x2="255" y2="466" stroke="#4b5563" stroke-width="1.6"/>
+  <line x1="705" y1="448" x2="705" y2="466" stroke="#4b5563" stroke-width="1.6"/>
+  <line x1="255" y1="466" x2="705" y2="466" stroke="#4b5563" stroke-width="1.6"/>
+  <rect x="335" y="476" width="290" height="32" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.4"/>
+  <text x="480" y="497" text-anchor="middle" class="label">实时更新全局最大值 ans，返回结果</text>
+</svg>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>001. 两数之和（简单）</title>
+<style>
+:root {color-scheme: light dark; font-family: system-ui,sans-serif; line-height: 1.65}
+body {margin: 0 auto; max-width: 52rem; padding: 1.5rem clamp(1rem,4vw,2rem) 3rem; overflow-wrap: anywhere}
+a {text-underline-offset: .2em}
+img {display: block; max-width: 100%; height: auto}
+pre, blockquote {padding: .8rem 1rem; background: color-mix(in srgb, CanvasText 7%, Canvas); border-radius: .4rem}
+pre {overflow: auto; overflow-wrap: normal}
+code {font-family: ui-monospace, monospace}
+table {display: block; overflow-x: auto; border-collapse: collapse}
+td, th {border: 1px solid GrayText; padding: .35rem .6rem}
+hr {border: 0; border-top: 1px solid GrayText}
+</style></head><body><nav><a href="../index.html">← 题解目录</a></nav><main><h1>001. 两数之和（简单）</h1>
+<blockquote>
+<p><strong>一句话核心</strong>：暴力慢在内层每次线性找 <code>target - x</code>；用哈希表记住左边看过的 <code>{值: 下标}</code>，把内层查找降成 <code>O(1)</code>。</p>
+</blockquote>
+<hr />
+<h2>一、底层原理图解</h2>
+<p><img alt="哈希表底层原理" src="assets/%E5%93%88%E5%B8%8C%E8%A1%A8%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86.svg" /></p>
+<ul>
+<li><strong>平均查找 <code>O(1)</code></strong>：通过散列函数把 <code>Key</code> 直接算成底层数组下标，一步定位。</li>
+<li><strong>最坏 <code>O(n)</code>（极罕见）</strong>：大量碰撞挤进同一槽位挂链表时退化；Python 内置随机化哈希与动态扩容，刷题直接按 <code>O(1)</code> 算。</li>
+</ul>
+<hr />
+<h2>二、下次遇到怎么想？（简单 3 步）</h2>
+<ol>
+<li><strong>先写暴力，盯住内层循环</strong>：内层只是在问“左边有没有 <code>target - x</code>”，属于<strong>精准等值查询</strong> → 立刻换哈希表。</li>
+<li><strong>套“枚举右，维护左”</strong>：</li>
+<li>走到 <code>j</code> 时，向左边查：<code>target - x in idx</code>？</li>
+<li>离开 <code>j</code> 时，把当前值留给右边：<code>idx[x] = j</code>。</li>
+<li><strong>检查边界</strong>：先查再存，天然不会自己配对；遇到重复数（如 <code>[3, 3], target = 6</code>）也是先查到前面的 <code>3</code> 直接返回，不会被覆盖。</li>
+</ol>
+<hr />
+<h2>三、我容易做错的地方</h2>
+<ul>
+<li>❌ <strong>先把所有元素一股脑塞进字典再查</strong>：容易把同一个下标用两次（自己加自己等于 <code>target</code>），还多了一次循环。</li>
+<li>✅ 正确做法：<strong>边遍历、边查询、再插入</strong>（先查后存）。</li>
+<li>❌ <strong>把 <code>下标 -&gt; 值</code> 存反了</strong>：我们需要通过“数值 <code>target - x</code>”反查“下标”，所以 Key 必须是<strong>数值</strong>，Value 才是<strong>下标</strong>。</li>
+</ul>
+<hr />
+<h2>四、标准代码（Python）</h2>
+<pre><code class="language-python">class Solution:
+    def twoSum(self, nums: list[int], target: int) -&gt; list[int]:
+        idx = {}  # {数值: 下标}
+        for j, x in enumerate(nums):
+            if target - x in idx:
+                return [idx[target - x], j]
+            idx[x] = j
+</code></pre>
+<ul>
+<li><strong>时间复杂度</strong>：<code>O(n)</code></li>
+<li><strong>空间复杂度</strong>：<code>O(n)</code></li>
+</ul></main></body></html>
