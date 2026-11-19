@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>42. 接雨水（困难）</title>
+<style>
+:root {color-scheme: light dark; font-family: system-ui,sans-serif; line-height: 1.65}
+body {margin: 0 auto; max-width: 52rem; padding: 1.5rem clamp(1rem,4vw,2rem) 3rem; overflow-wrap: anywhere}
+a {text-underline-offset: .2em}
+img {display: block; max-width: 100%; height: auto}
+pre, blockquote {padding: .8rem 1rem; background: color-mix(in srgb, CanvasText 7%, Canvas); border-radius: .4rem}
+pre {overflow: auto; overflow-wrap: normal}
+code {font-family: ui-monospace, monospace}
+table {display: block; overflow-x: auto; border-collapse: collapse}
+td, th {border: 1px solid GrayText; padding: .35rem .6rem}
+hr {border: 0; border-top: 1px solid GrayText}
+</style></head><body><nav><a href="../index.html">← 题解目录</a></nav><main><h1>42. 接雨水（困难）</h1>
+<blockquote>
+<p><strong>一句话核心</strong>：这道题是<strong>三大算法思想的交汇点</strong>——竖着算体现<strong>前后缀分解 → 双指针省空间</strong>，横着算体现<strong>单调栈填平凹槽</strong>。</p>
+</blockquote>
+<hr />
+<h2>一、思路图解（竖算 vs 横算 &amp; 弹栈简化原理）</h2>
+<p><img alt="42. 接雨水图解" src="assets/42-%E6%8E%A5%E9%9B%A8%E6%B0%B4%E5%9B%BE%E8%A7%A3.svg" /></p>
+<hr />
+<h2>二、方法怎么串起来？（从暴力到三大解法的思维进化链）</h2>
+<ol>
+<li><strong>起点：暴力竖着算（<code>O(n²)</code>）</strong></li>
+<li>对每根柱子 <code>i</code>，头顶水量 = <code>min(左边最高, 右边最高) - height[i]</code>。每列都往左往右扫一遍太慢。</li>
+<li><strong>进化 1：前后缀分解（<code>O(n)</code> 时间，<code>O(n)</code> 空间）—— 最符合直觉</strong></li>
+<li><em>注：这步</em><em>不是双指针</em><em>，而是教程里的</em><em>“前后缀分解 / 备忘录预处理”</em><em>（和后续 <code>238. 除了自身以外数组的乘积</code> 完全同源）！</em></li>
+<li>从左往右预处理 <code>pre_max[i]</code>，从右往左预处理 <code>suf_max[i]</code>，最后逐列相减累加。</li>
+<li><strong>进化 2：相向双指针（<code>O(n)</code> 时间，<code>O(1)</code> 空间）—— 前后缀的压缩版</strong></li>
+<li>发现 <code>pre_max</code> 只从左往右涨、<code>suf_max</code> 只从右往左涨，于是用 <code>left / right</code> 两个指针和 <code>left_max / right_max</code> 两个变量替代两个数组，谁更小就先结算谁那一列。</li>
+<li><strong>平行路线：单调递减栈（<code>O(n)</code> 时间，<code>O(n)</code> 空间）—— 横着按层算</strong></li>
+<li>换个切法：不按列算，而是找凹槽，<strong>每次出栈相当于把凹槽填平、把图简化</strong>（和后续 <code>739. 每日温度</code>、<code>84. 柱状图中最大的矩形</code> 同源）。</li>
+</ol>
+<hr />
+<h2>三、核心病因复盘：为什么单调栈之前总写错？</h2>
+<p><img alt="左墙剥洋葱图解" src="assets/42-%E5%B7%A6%E5%A2%99%E5%89%A5%E6%B4%8B%E8%91%B1%E5%9B%BE%E8%A7%A3.svg" /></p>
+<ul>
+<li><strong>建模误区</strong>：总想在循环外写死一个 <code>left = 0</code>，以为整个图只有一堵固定左墙。</li>
+<li><strong>真相（剥洋葱）</strong>：不同深度的坑左墙不同——<strong>弹出槽底 <code>bottom = stack.pop()</code> 之后，脚下露出的新栈顶 <code>stack[-1]</code> 才是这一层的左墙！</strong></li>
+<li><strong>4 个代码细节坑</strong>：</li>
+<li>❌ 入栈时提前算 <code>relativewater</code>（此时右墙未知）→ ✅ 只存下标 <code>i</code>。</li>
+<li>❌ <code>height[i] &gt; stack[-1]</code> 忘了套 <code>height[...]</code> → ✅ 写 <code>height[i] &gt; height[stack[-1]]</code>。</li>
+<li>❌ 把高度差起名叫 <code>height</code> 覆盖输入数组、宽度写成 <code>+1</code> → ✅ 改名 <code>dh</code>，宽度是 <code>i - left - 1</code>。</li>
+<li>❌ 用 <code>if / else</code> 拆开导致当前柱子忘了入栈 → ✅ <code>while</code> 结算完统一 <code>stack.append(i)</code>。</li>
+</ul>
+<hr />
+<h2>四、标准代码（Python 三大流派对照）</h2>
+<h3>1. 前后缀分解（竖着算最直觉版，串联 <code>238</code> 题）</h3>
+<pre><code class="language-python">class Solution:
+    def trap(self, height: list[int]) -&gt; int:
+        n = len(height)
+        pre_max = [0] * n
+        pre_max[0] = height[0]
+        for i in range(1, n):
+            pre_max[i] = max(pre_max[i - 1], height[i])
+
+        suf_max = [0] * n
+        suf_max[-1] = height[-1]
+        for i in range(n - 2, -1, -1):
+            suf_max[i] = max(suf_max[i + 1], height[i])
+
+        return sum(min(pre_max[i], suf_max[i]) - height[i] for i in range(n))
+</code></pre>
+<h3>2. 相向双指针（竖着算省空间版，<code>O(1)</code> 空间）</h3>
+<pre><code class="language-python">class Solution:
+    def trap(self, height: list[int]) -&gt; int:
+        left, right = 0, len(height) - 1
+        left_max = right_max = ans = 0
+        while left &lt; right:
+            left_max = max(left_max, height[left])
+            right_max = max(right_max, height[right])
+            if left_max &lt; right_max:
+                ans += left_max - height[left]
+                left += 1
+            else:
+                ans += right_max - height[right]
+                right -= 1
+        return ans
+</code></pre>
+<h3>3. 单调递减栈（横着算，串联 <code>739</code>、<code>84</code> 题）</h3>
+<pre><code class="language-python">class Solution:
+    def trap(self, height: list[int]) -&gt; int:
+        stack = []  # 存下标，保持对应高度单调递减
+        water = 0
+        for i in range(len(height)):
+            while stack and height[i] &gt; height[stack[-1]]:
+                bottom = stack.pop()
+                if not stack:
+                    break
+                left = stack[-1]
+                dh = min(height[left], height[i]) - height[bottom]
+                length = i - left - 1
+                water += dh * length
+            stack.append(i)
+        return water
+</code></pre></main></body></html>

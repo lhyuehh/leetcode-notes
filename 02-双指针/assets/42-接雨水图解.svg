@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
+  <rect width="960" height="540" fill="#ffffff"/>
+  <style>
+    .title { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 21px; font-weight: 600; fill: #111827; }
+    .h2b { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 16px; font-weight: 600; fill: #1e3a8a; }
+    .h2g { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 16px; font-weight: 600; fill: #065f46; }
+    .h2a { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 16px; font-weight: 600; fill: #92400e; }
+    .label { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 13.5px; fill: #1f2937; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; fill: #1e40af; }
+    .muted { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 12.5px; fill: #6b7280; }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 1 1.5 L 8.5 5 L 1 8.5" fill="none" stroke="#4b5563" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <text x="480" y="36" text-anchor="middle" class="title">42. 接雨水图解：竖着算 vs 横着算 &amp; 弹栈简化图形原理</text>
+
+  <!-- Top Left: 竖着算 -->
+  <rect x="30" y="58" width="435" height="225" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="247" y="86" text-anchor="middle" class="h2b">方式 1：竖着算（前后缀 / 双指针）</text>
+  <text x="247" y="108" text-anchor="middle" class="muted">按每一列头顶水量累加：min(左最高, 右最高) - h[i]</text>
+
+  <!-- Bars for vertical -->
+  <rect x="115" y="130" width="38" height="120" fill="#374151"/>
+  <text x="134" y="266" text-anchor="middle" class="muted">5</text>
+  <!-- Column i water -->
+  <rect x="163" y="190" width="38" height="36" fill="#93c5fd" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 2"/>
+  <rect x="163" y="226" width="38" height="24" fill="#374151"/>
+  <text x="182" y="212" text-anchor="middle" class="mono">水</text>
+  <text x="182" y="266" text-anchor="middle" class="muted">1</text>
+
+  <rect x="211" y="190" width="38" height="36" fill="#dbeafe"/>
+  <rect x="211" y="226" width="38" height="24" fill="#374151"/>
+  <text x="230" y="266" text-anchor="middle" class="muted">1</text>
+
+  <rect x="259" y="190" width="38" height="60" fill="#374151"/>
+  <text x="278" y="266" text-anchor="middle" class="muted">2</text>
+
+  <text x="316" y="168" class="label">只看单列：</text>
+  <text x="316" y="190" class="mono">左最高 = 5</text>
+  <text x="316" y="210" class="mono">右最高 = 2</text>
+  <text x="316" y="232" class="mono">水 = min(5,2)-1</text>
+
+  <!-- Top Right: 横着算 -->
+  <rect x="495" y="58" width="435" height="225" rx="12" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5"/>
+  <text x="712" y="86" text-anchor="middle" class="h2g">方式 2：横着算（单调递减栈）</text>
+  <text x="712" y="108" text-anchor="middle" class="muted">遇上升凑齐左墙/槽底/右墙，按层算长方形 dh × w</text>
+
+  <rect x="555" y="130" width="38" height="120" fill="#374151"/>
+  <text x="574" y="266" text-anchor="middle" class="muted">5</text>
+
+  <!-- Layer 2 -->
+  <rect x="603" y="190" width="86" height="30" fill="#6ee7b7" stroke="#059669" stroke-width="1.3"/>
+  <text x="646" y="209" text-anchor="middle" class="label">第2层 (宽=2)</text>
+  <!-- Layer 1 -->
+  <rect x="651" y="220" width="38" height="30" fill="#a7f3d0" stroke="#059669" stroke-width="1.3"/>
+  <text x="670" y="239" text-anchor="middle" class="muted">第1层</text>
+
+  <rect x="603" y="220" width="38" height="30" fill="#374151"/>
+  <text x="622" y="266" text-anchor="middle" class="muted">1</text>
+  <text x="670" y="266" text-anchor="middle" class="muted">0</text>
+
+  <rect x="699" y="190" width="38" height="60" fill="#374151"/>
+  <text x="718" y="266" text-anchor="middle" class="muted">2</text>
+
+  <text x="756" y="168" class="label">一层一层结：</text>
+  <text x="756" y="190" class="mono">弹0: 1×1 = 1</text>
+  <text x="756" y="210" class="mono">弹1: 1×2 = 2</text>
+  <text x="756" y="232" class="mono">总计 = 3</text>
+
+  <!-- Bottom: 为什么每次出栈等价于简化图 -->
+  <rect x="30" y="302" width="900" height="214" rx="12" fill="#fffbeb" stroke="#fcd34d" stroke-width="1.6"/>
+  <text x="480" y="332" text-anchor="middle" class="h2a">为什么“每一次出栈都等价于简化图”？（填平凹槽原理）</text>
+
+  <!-- Before -->
+  <text x="195" y="362" text-anchor="middle" class="label">出栈前：凹凸不平 [5, 1, 0, 2]</text>
+  <rect x="85" y="376" width="34" height="96" fill="#374151"/>
+  <rect x="125" y="446" width="34" height="26" fill="#374151"/>
+  <rect x="165" y="472" width="34" height="0" fill="#374151"/>
+  <rect x="205" y="420" width="34" height="52" fill="#374151"/>
+  <rect x="125" y="420" width="74" height="26" fill="#fde68a" stroke="#d97706" stroke-dasharray="3 2"/>
+  <rect x="165" y="446" width="34" height="26" fill="#fde68a" stroke="#d97706" stroke-dasharray="3 2"/>
+  <text x="162" y="438" text-anchor="middle" class="muted">凹槽(水)</text>
+  <text x="275" y="435" class="mono">栈:[5,1,0]</text>
+
+  <!-- Arrow -->
+  <line x1="365" y1="428" x2="455" y2="428" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="410" y="410" text-anchor="middle" class="label">弹出 0 和 1</text>
+  <text x="410" y="452" text-anchor="middle" class="muted">凹槽被水填平</text>
+
+  <!-- After -->
+  <text x="645" y="362" text-anchor="middle" class="label">出栈后：凹槽被“水水泥”填平，图简化成 [5, 2]</text>
+  <rect x="505" y="376" width="34" height="96" fill="#374151"/>
+  <!-- Filled flat block -->
+  <rect x="545" y="420" width="114" height="52" fill="#93c5fd" stroke="#2563eb" stroke-width="1.4"/>
+  <text x="602" y="450" text-anchor="middle" class="label">已填平(以后不再看)</text>
+  <rect x="665" y="420" width="34" height="52" fill="#374151"/>
+  <text x="748" y="422" class="mono">新栈:[5, 2]</text>
+  <text x="748" y="446" class="muted">重新保持严格递减</text>
+
+  <text x="480" y="500" text-anchor="middle" class="muted">结论：每结算完一个凹槽，坑底就被水填平到当前高度并移出栈，后续柱子只需和简化后的新阶梯比较</text>
+</svg>

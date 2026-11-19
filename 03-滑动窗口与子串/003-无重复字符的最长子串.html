@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>003. 无重复字符的最长子串（中等）</title>
+<style>
+:root {color-scheme: light dark; font-family: system-ui,sans-serif; line-height: 1.65}
+body {margin: 0 auto; max-width: 52rem; padding: 1.5rem clamp(1rem,4vw,2rem) 3rem; overflow-wrap: anywhere}
+a {text-underline-offset: .2em}
+img {display: block; max-width: 100%; height: auto}
+pre, blockquote {padding: .8rem 1rem; background: color-mix(in srgb, CanvasText 7%, Canvas); border-radius: .4rem}
+pre {overflow: auto; overflow-wrap: normal}
+code {font-family: ui-monospace, monospace}
+table {display: block; overflow-x: auto; border-collapse: collapse}
+td, th {border: 1px solid GrayText; padding: .35rem .6rem}
+hr {border: 0; border-top: 1px solid GrayText}
+</style></head><body><nav><a href="../index.html">← 题解目录</a></nav><main><h1>003. 无重复字符的最长子串（中等）</h1>
+<blockquote>
+<p><strong>一句话核心</strong>：维护 <code>[left .. right]</code> 无重复子串窗口——要么用 <code>set</code> 账本在重复时让 <code>left</code> 一步步吐字符，要么用字典记上次下标直接把 <code>left</code> 跳到 <code>last_idx[ch] + 1</code>。</p>
+</blockquote>
+<hr />
+<h2>一、思路图解</h2>
+<p><img alt="003. 无重复字符的最长子串图解" src="assets/003-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E5%9B%BE%E8%A7%A3.svg" /></p>
+<hr />
+<h2>二、下次遇到怎么想？（简单 3 步）</h2>
+<ol>
+<li><strong>看题型</strong>：求连续子串 + “无重复”有单调性（窗口扩只会更可能重复，缩只会更干净）→ <strong>滑动窗口</strong>。</li>
+<li><strong>选账本</strong>：</li>
+<li><strong>通用模板（推荐串联后续 <code>438</code>、<code>76</code>）</strong>：<code>window = set()</code>，遇重复就 <code>while ch in window:</code> 吐出 <code>s[left]</code> 并 <code>left += 1</code>。</li>
+<li><strong>本题加速版</strong>：<code>last_idx = {}</code> 记每个字符上次出现的下标，直接把 <code>left</code> 跳过去。</li>
+<li><strong>更新答案</strong>：求<strong>最长</strong>合法窗口，所以等窗口重新合法后，在外面更新 <code>ans = max(ans, right - left + 1)</code>。</li>
+</ol>
+<hr />
+<h2>三、我容易做错的地方（本次真实踩坑复盘）</h2>
+<p>使用“记下标跳 <code>left</code> 法”时踩过这 2 个坑：</p>
+<ol>
+<li>❌ <strong>以为必须删除字典里 <code>left</code> 之前的旧记录</strong></li>
+<li>其实<strong>完全不用删</strong>！只要判断 <code>last_idx[ch] &gt;= left</code>（或者直接写 <code>left = max(left, last_idx[ch] + 1)</code>），<code>left</code> 之前的旧下标会被自动忽略，而且 <code>left</code> 绝不会倒退。</li>
+<li>❌ <strong>在 <code>else</code> 分支里忘了把 <code>last_idx[s[right]]</code> 更新成最新 <code>right</code></strong>（最隐蔽！）</li>
+<li>比如 <code>"bbbbb"</code>：第 2 个 <code>'b'</code> 进了重复分支把 <code>left</code> 移到 <code>1</code>，但字典里的 <code>'b'</code> 还是旧的 <code>0</code>，到第 3 个 <code>'b'</code> 时误判 <code>0 &lt; left(1)</code> 没重复，直接算错长度。</li>
+<li>✅ <strong>铁律</strong>：<strong>不管有没有发生重复，<code>last_idx[s[right]] = right</code> 必须写在 <code>if/else</code> 外面，每轮必更新！</strong></li>
+</ol>
+<hr />
+<h2>四、标准代码（Python）</h2>
+<h3>解法一：通用滑窗 <code>set</code> 版（最简洁，推荐通用母模板）</h3>
+<pre><code class="language-python">class Solution:
+    def lengthOfLongestSubstring(self, s: str) -&gt; int:
+        window = set()
+        left = 0
+        ans = 0
+        for right, ch in enumerate(s):
+            while ch in window:
+                window.remove(s[left])
+                left += 1
+            window.add(ch)
+            ans = max(ans, right - left + 1)
+        return ans
+</code></pre>
+<h3>解法二：记下标跳 <code>left</code> 版（一趟直跳）</h3>
+<pre><code class="language-python">class Solution:
+    def lengthOfLongestSubstring(self, s: str) -&gt; int:
+        last_idx = {}
+        left = 0
+        ans = 0
+        for right, ch in enumerate(s):
+            if ch in last_idx:
+                left = max(left, last_idx[ch] + 1)
+            last_idx[ch] = right  # 无论是否重复，每轮必更新！
+            ans = max(ans, right - left + 1)
+        return ans
+</code></pre>
+<ul>
+<li><strong>时间复杂度</strong>：<code>O(n)</code></li>
+<li><strong>空间复杂度</strong>：<code>O(字符集大小)</code></li>
+</ul></main></body></html>

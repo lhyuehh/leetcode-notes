@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440">
+  <rect width="960" height="440" fill="#ffffff"/>
+  <style>
+    .title { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 20px; font-weight: 600; fill: #111827; }
+    .h2b { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 16px; font-weight: 600; fill: #1e3a8a; }
+    .h2g { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 16px; font-weight: 600; fill: #065f46; }
+    .label { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 14px; fill: #1f2937; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13.5px; fill: #1e40af; }
+    .bad { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 13.5px; font-weight: 600; fill: #b91c1c; }
+    .muted { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 13px; fill: #6b7280; }
+  </style>
+
+  <text x="480" y="36" text-anchor="middle" class="title">003. 无重复字符的最长子串：通用账本滑窗 vs 记下标跳 left</text>
+
+  <!-- Left Card: 通用账本 while 吐出法 -->
+  <rect x="32" y="62" width="432" height="348" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="248" y="94" text-anchor="middle" class="h2b">方法 1：通用滑窗（set / defaultdict 账本）</text>
+  <text x="248" y="118" text-anchor="middle" class="muted">适合迁移到 438、76 等所有子串题</text>
+
+  <rect x="76" y="140" width="48" height="38" fill="#e5e7eb" stroke="#9ca3af"/>
+  <text x="100" y="164" text-anchor="middle" class="mono">a</text>
+  <rect x="128" y="140" width="48" height="38" fill="#bfdbfe" stroke="#2563eb" stroke-width="1.6"/>
+  <text x="152" y="164" text-anchor="middle" class="mono">b</text>
+  <rect x="180" y="140" width="48" height="38" fill="#bfdbfe" stroke="#2563eb" stroke-width="1.6"/>
+  <text x="204" y="164" text-anchor="middle" class="mono">c</text>
+  <rect x="232" y="140" width="48" height="38" fill="#fde68a" stroke="#d97706" stroke-width="1.6"/>
+  <text x="256" y="164" text-anchor="middle" class="mono">a</text>
+  <text x="100" y="196" text-anchor="middle" class="muted">吐出</text>
+  <text x="152" y="196" text-anchor="middle" class="mono">left</text>
+  <text x="256" y="196" text-anchor="middle" class="mono">right</text>
+
+  <text x="58" y="238" class="label">1. 若 s[right] 在 window 中：</text>
+  <text x="74" y="262" class="mono">while ch in window: remove(s[left]); left+=1</text>
+  <text x="58" y="294" class="label">2. 腾干净后放入：window.add(ch)</text>
+  <text x="58" y="324" class="label">3. 更新最大长度：ans = max(ans, right-left+1)</text>
+  <text x="58" y="366" class="muted">每个字符最多进出窗口各 1 次 → 严格 O(n)</text>
+
+  <!-- Right Card: 记下标跳 left 法 -->
+  <rect x="496" y="62" width="432" height="348" rx="12" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5"/>
+  <text x="712" y="94" text-anchor="middle" class="h2g">方法 2：记下标跳 left 法（本题专属加速）</text>
+  <text x="712" y="118" text-anchor="middle" class="muted">不用删字典旧键，也不用写里层 while</text>
+
+  <rect x="540" y="140" width="48" height="38" fill="#f3f4f6" stroke="#9ca3af"/>
+  <text x="564" y="164" text-anchor="middle" class="mono">a(0)</text>
+  <rect x="592" y="140" width="48" height="38" fill="#f3f4f6" stroke="#9ca3af"/>
+  <text x="616" y="164" text-anchor="middle" class="mono">b(1)</text>
+  <rect x="644" y="140" width="48" height="38" fill="#a7f3d0" stroke="#059669" stroke-width="1.6"/>
+  <text x="668" y="164" text-anchor="middle" class="mono">b(2)</text>
+  <rect x="696" y="140" width="48" height="38" fill="#a7f3d0" stroke="#059669" stroke-width="1.6"/>
+  <text x="720" y="164" text-anchor="middle" class="mono">a(3)</text>
+  <text x="668" y="196" text-anchor="middle" class="mono">left=2</text>
+  <text x="720" y="196" text-anchor="middle" class="mono">right=3</text>
+
+  <text x="522" y="238" class="label">1. 遇到 'a'，上次在 0 (&lt; left=2)：</text>
+  <text x="538" y="262" class="mono">left = max(left, last_idx[ch] + 1) # 不倒退!</text>
+  <text x="522" y="298" class="bad">2. 易错点：无论是否重复，必须更新最新下标！</text>
+  <text x="538" y="322" class="mono">last_idx[ch] = right  # 写在 if/else 外面</text>
+  <text x="522" y="366" class="label">3. 更新长度：ans = max(ans, right - left + 1)</text>
+</svg>
