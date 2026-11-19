@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>15. 三数之和（中等）</title>
+<style>
+:root {color-scheme: light dark; font-family: system-ui,sans-serif; line-height: 1.65}
+body {margin: 0 auto; max-width: 52rem; padding: 1.5rem clamp(1rem,4vw,2rem) 3rem; overflow-wrap: anywhere}
+a {text-underline-offset: .2em}
+img {display: block; max-width: 100%; height: auto}
+pre, blockquote {padding: .8rem 1rem; background: color-mix(in srgb, CanvasText 7%, Canvas); border-radius: .4rem}
+pre {overflow: auto; overflow-wrap: normal}
+code {font-family: ui-monospace, monospace}
+table {display: block; overflow-x: auto; border-collapse: collapse}
+td, th {border: 1px solid GrayText; padding: .35rem .6rem}
+hr {border: 0; border-top: 1px solid GrayText}
+</style></head><body><nav><a href="../index.html">← 题解目录</a></nav><main><h1>15. 三数之和（中等）</h1>
+<blockquote>
+<p><strong>一句话核心</strong>：题目要返回<strong>去重后的数值</strong>而非原下标 → 先 <code>sort()</code> 创造“左小右大”并让相同数挨在一起，再用 <code>for</code> 固定第一位 + 相向双指针夹逼。</p>
+</blockquote>
+<hr />
+<h2>一、思路图解</h2>
+<p><img alt="双指针两大模式" src="assets/%E5%8F%8C%E6%8C%87%E9%92%88%E4%B8%A4%E5%A4%A7%E6%A8%A1%E5%BC%8F.svg" /></p>
+<hr />
+<h2>二、下次遇到怎么想？（简单 3 步）</h2>
+<ol>
+<li><strong>为什么不用两数之和的哈希法？</strong></li>
+<li>哈希法去重很麻烦（要排序元组再丢进 <code>set</code>）；而本题<strong>只要数值不要下标</strong>，直接 <code>nums.sort()</code> 就能一边夹逼一边相邻去重。</li>
+<li><strong>拆成两数之和</strong>：</li>
+<li>外层固定 <code>nums[i]</code>，内层在 <code>[i + 1 .. n - 1]</code> 放 <code>start, end</code> 找和为 <code>-nums[i]</code> 的两个数。</li>
+<li><strong>两处去重 + 一个剪枝</strong>：</li>
+<li>剪枝：<code>nums[i] &gt; 0</code> 直接 <code>break</code>；</li>
+<li>外层去重：跳过与前一个相同的 <code>nums[i]</code>；</li>
+<li>内层去重：命中答案后跳过相同的 <code>nums[start]</code> 和 <code>nums[end]</code>。</li>
+</ol>
+<hr />
+<h2>三、我常犯的思维问题 &amp; 如何纠正</h2>
+<ol>
+<li>❌ <strong>外层用 <code>while</code> 手动 <code>i += 1</code>，写着写着就漏掉推进导致死循环</strong></li>
+<li>✅ <strong>纠正</strong>：外层永远用 <strong><code>for i in range(len(nums) - 2)</code></strong>，把步进交给 Python，去重全放循环开头用 <code>continue</code>。</li>
+<li>❌ <strong>内层“先走 1 步 + 再用 <code>while</code> 跟前一个比”容易漏掉固定前进、也搞不清顺序</strong></li>
+<li>✅ <strong>纠正</strong>：改用 <strong>labuladong“先锁旧值法”</strong>——先记 <code>left_val, right_val = nums[start], nums[end]</code>，再用 <code>while start &lt; end and nums[start] == left_val: start += 1</code> 一步到位完成<strong>前进 1 步 + 跳过重复</strong>。</li>
+<li>❌ <strong>写里层 <code>while</code> 时刹车条件放错边</strong></li>
+<li>✅ <strong>纠正</strong>：铁律<strong>下标在左，取值在右</strong>（<code>start &lt; end and ...</code>）。</li>
+</ol>
+<hr />
+<h2>四、最适合我的完整版代码（Python）</h2>
+<pre><code class="language-python">class Solution:
+    def threeSum(self, nums: list[int]) -&gt; list[list[int]]:
+        result = []
+        nums.sort()
+        for i in range(len(nums) - 2):
+            if nums[i] &gt; 0:                     # 剪枝：最小数都 &gt; 0，不可能凑出 0
+                break
+            if i &gt; 0 and nums[i] == nums[i - 1]: # 外层去重：for + continue 永不死循环
+                continue
+
+            target = -nums[i]
+            start, end = i + 1, len(nums) - 1
+            while start &lt; end:
+                s = nums[start] + nums[end]
+                if s &gt; target:
+                    end -= 1
+                elif s &lt; target:
+                    start += 1
+                else:
+                    # 锁旧值法：一步到位完成前进 + 去重
+                    left_val, right_val = nums[start], nums[end]
+                    result.append([nums[i], left_val, right_val])
+                    while start &lt; end and nums[start] == left_val:
+                        start += 1
+                    while start &lt; end and nums[end] == right_val:
+                        end -= 1
+        return result
+</code></pre>
+<ul>
+<li><strong>时间复杂度</strong>：<code>O(n²)</code>（排序 <code>O(n log n)</code> + 外层与内层双指针 <code>O(n²)</code>）</li>
+<li><strong>空间复杂度</strong>：<code>O(1)</code>（不计排序栈空间与返回值）</li>
+</ul></main></body></html>
